@@ -1,0 +1,13 @@
+---
+import PostLayout from '../../layouts/PostLayout.astro';
+
+export interface Props {
+  post: any;
+}
+
+const { post } = Astro.props;
+---
+
+<PostLayout post={post}>
+  <slot />
+</PostLayout>
