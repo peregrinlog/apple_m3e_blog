@@ -1,0 +1,136 @@
+---
+import BlogLayout from '../../layouts/BlogLayout.astro';
+
+// Get all posts
+const allPosts = await Astro.glob('../../content/posts/*.md');
+
+// Extract all unique tags
+const tagCounts = new Map<string, number>();
+allPosts.forEach((post) => {
+  const tags = post.frontmatter.tags || [];
+  tags.forEach((tag: string) => {
+    tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+  });
+});
+
+// Sort tags by count (descending)
+const sortedTags = Array.from(tagCounts.entries()).sort((a, b) => b[1] - a[1]);
+---
+
+<BlogLayout title="标签" description="浏览所有文章标签">
+  <div class="container">
+    <header class="tags-header">
+      <h1>文章标签</h1>
+      <p class="tags-description">
+        通过标签快速找到你感兴趣的内容
+      </p>
+    </header>
+
+    <!-- Tags Cloud -->
+    <section class="tags-section">
+      <h2 class="section-title">所有标签</h2>
+      
+      <div class="tags-cloud">
+        {sortedTags.map(([tag, count]) => (
+          <a href={`/tags/${tag}`} class="tag-item">
+            <span class="tag-name">{tag}</span>
+            <span class="tag-count">{count}</span>
+          </a>
+        ))}
+      </div>
+
+      {sortedTags.length === 0 && (
+        <div class="empty-state">
+          <p>暂无标签</p>
+        </div>
+      )}
+    </section>
+  </div>
+</BlogLayout>
+
+<style>
+  .tags-header {
+    text-align: center;
+    padding: var(--space-12) 0 var(--space-8);
+  }
+
+  .tags-header h1 {
+    margin-bottom: var(--space-4);
+  }
+
+  .tags-description {
+    color: var(--color-on-surface-variant);
+    font-size: var(--font-size-lg);
+  }
+
+  .tags-section {
+    padding: var(--space-8) 0;
+  }
+
+  .section-title {
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-3);
+    border-bottom: 2px solid var(--color-outline-variant);
+  }
+
+  .tags-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .tag-item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    background-color: var(--color-surface-container);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-full);
+    transition: all var(--transition-fast);
+    min-height: 48px;
+  }
+
+  .tag-item:hover {
+    background-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .tag-item:hover .tag-name {
+    color: var(--color-on-primary);
+  }
+
+  .tag-item:hover .tag-count {
+    background-color: var(--color-on-primary);
+    color: var(--color-primary);
+  }
+
+  .tag-name {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-on-surface);
+    transition: color var(--transition-fast);
+  }
+
+  .tag-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 var(--space-1);
+    background-color: var(--color-outline-variant);
+    color: var(--color-on-surface-variant);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    border-radius: var(--radius-full);
+    transition: all var(--transition-fast);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: var(--space-16) 0;
+    color: var(--color-on-surface-variant);
+  }
+</style>

@@ -1,0 +1,69 @@
+---
+export interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  canonicalURL?: string;
+}
+
+interface AstroGlobal {
+  url: URL;
+}
+
+const { title, description = 'A personal blog built with Astro', image, canonicalURL } = Astro.props;
+const siteTitle = 'My Personal Blog';
+const fullTitle = title ? `${title} | ${siteTitle}` : siteTitle;
+const siteUrl = Astro.site?.href || 'https://your-site.com';
+const ogImage = image || `${siteUrl}/og-image.png`;
+const canonical = canonicalURL || Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+  <head>
+    <!-- Theme initialization script (prevents flash) -->
+    <script is:inline>
+      (function() {
+        const stored = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = stored || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+
+    <!-- Meta -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={Astro.url.href} />
+    <meta property="og:image" content={ogImage} />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/src/styles/themes/base.css" />
+    <link rel="stylesheet" href="/src/styles/global.css" />
+
+    <title>{fullTitle}</title>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  /* Additional global styles if needed */
+</style>

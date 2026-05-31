@@ -1,0 +1,181 @@
+---
+import BlogLayout from '../layouts/BlogLayout.astro';
+
+// Get all posts from content collection
+const posts = await Astro.glob('../content/posts/*.md');
+
+// Sort by date (newest first)
+const sortedPosts = posts.sort((a, b) => {
+  const dateA = new Date(a.frontmatter.date || '');
+  const dateB = new Date(b.frontmatter.date || '');
+  return dateB.getTime() - dateA.getTime();
+});
+---
+
+<BlogLayout title="首页" description="个人博客 - 分享技术与生活">
+  <div class="container">
+    <!-- Hero Section -->
+    <section class="hero">
+      <h1>Welcome to My Blog</h1>
+      <p class="hero-description">
+        这里是我分享技术心得、生活感悟的地方。希望能为你带来一些启发和帮助。
+      </p>
+    </section>
+
+    <!-- Posts List -->
+    <section class="posts-section">
+      <h2 class="section-title">最新文章</h2>
+      
+      <div class="posts-grid">
+        {sortedPosts.map((post) => (
+          <article class="post-card card">
+            <a href={post.url} class="post-card-link">
+              <h3 class="post-title">{post.frontmatter.title}</h3>
+              
+              {post.frontmatter.description && (
+                <p class="post-excerpt">{post.frontmatter.description}</p>
+              )}
+              
+              <div class="post-meta">
+                <time datetime={post.frontmatter.date}>
+                  {new Date(post.frontmatter.date).toLocaleDateString('zh-CN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </time>
+                
+                {post.frontmatter.tags && post.frontmatter.tags.length > 0 && (
+                  <div class="post-tags">
+                    {post.frontmatter.tags.map((tag: string) => (
+                      <span class="tag">{tag}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </a>
+          </article>
+        ))}
+      </div>
+
+      {sortedPosts.length === 0 && (
+        <div class="empty-state">
+          <p>还没有文章，敬请期待！</p>
+        </div>
+      )}
+    </section>
+  </div>
+</BlogLayout>
+
+<style>
+  .hero {
+    text-align: center;
+    padding: var(--space-16) 0;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .hero h1 {
+    margin-bottom: var(--space-4);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-tertiary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-description {
+    font-size: var(--font-size-lg);
+    color: var(--color-on-surface-variant);
+    line-height: var(--line-height-relaxed);
+  }
+
+  .posts-section {
+    padding: var(--space-8) 0;
+  }
+
+  .section-title {
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-3);
+    border-bottom: 2px solid var(--color-outline-variant);
+  }
+
+  .posts-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 768px) {
+    .posts-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .post-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .post-card-link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    color: inherit;
+  }
+
+  .post-card-link:hover {
+    color: inherit;
+  }
+
+  .post-title {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--space-2);
+    color: var(--color-on-surface);
+    transition: color var(--transition-fast);
+  }
+
+  .post-card:hover .post-title {
+    color: var(--color-primary);
+  }
+
+  .post-excerpt {
+    flex-grow: 1;
+    color: var(--color-on-surface-variant);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-relaxed);
+    margin-bottom: var(--space-4);
+  }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    font-size: var(--font-size-sm);
+    color: var(--color-on-surface-variant);
+  }
+
+  .post-tags {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    background-color: var(--color-primary-container);
+    color: var(--color-on-primary-container);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-xs);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: var(--space-16) 0;
+    color: var(--color-on-surface-variant);
+  }
+</style>
